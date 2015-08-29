@@ -1,0 +1,13 @@
+[package]
+
+name = "autofill"
+version = "0.0.1"
+authors = [ "Your name <you@example.com>" ]
+
+[[bin]]
+
+name = "autofill"
+
+[dependencies]
+getopts = "0.2.13"
+rand    = "0.3.10"
