@@ -1,13 +1,13 @@
 [package]
-
 name = "autofill"
-version = "1.0.0"
-authors = [ "Antoine Lestrade <antoine.lestrade@gmail.com>" ]
+version = "2.0.0"
+authors = [ "Antoine Lestrade <antoine.lestrade@gmail.com" ]
+edition = "2018"
 
 [[bin]]
 
 name = "autofill"
 
 [dependencies]
-getopts = "0.2.13"
-rand    = "0.3.10"
+rand = "0.6"
+structopt = "0.2"

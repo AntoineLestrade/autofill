@@ -1,46 +1,19 @@
-extern crate getopts;
-extern crate rand;
-
-use getopts::Options;
-
-use rand::Rng;
-use std::env;
 use std::fs;
 use std::path::PathBuf;
 
+use rand::Rng;
+use structopt::StructOpt;
+
+#[derive(Debug, StructOpt)]
 struct Params {
-    program_name: String,
-    show_help: bool,
+    #[structopt(short = "v", long="verbose")]
     verbose: bool,
+    #[structopt()]
     size_limit: u64,
+    #[structopt(parse(from_os_str))]
+    dest_folder: std::path::PathBuf,
+    #[structopt()]
     source_folders: Vec<String>,
-
-    dest_folder: std::path::PathBuf
-}
-
-fn parse_arguments() -> Result<(Params, Options), getopts::Fail> {
-    let args: Vec<String> = env::args().collect();
-
-    let mut opts = Options::new();
-    opts.optflag("h", "help", "print this help menu");
-    opts.optflag("v", "verbose", "print more output");
-    let matches = opts.parse(&args[1..])?;
-
-    let size_limit = match matches.free[0].parse() {
-        Ok(v) => v,
-        Err(_) => return Err(getopts::Fail::UnexpectedArgument(format!("Cannot parse size {} into number", matches.free[0])))
-    };
-
-    Ok((Params {
-        program_name: args[0].clone(),
-        show_help: matches.opt_present("h"),
-        verbose: matches.opt_present("v"),
-        size_limit,
-
-        source_folders: matches.free[1..matches.free.len() - 1].to_vec(),
-        dest_folder: std::path::PathBuf::from(matches.free[matches.free.len() - 1].clone())
-    }, opts))
-
 }
 
 fn list_files(
@@ -59,24 +32,8 @@ fn list_files(
     }
 }
 
-fn print_usage(program: &str, opts: &Options) {
-    let brief = format!("Usage: {} [options] SIZE SOURCE_FOLDER [SOURCE_FOLDER_2 [SOURCE_FOLDER_3 ...]] DESTINATION_FOLDER", program);
-    print!("{}", opts.usage(&brief));
-}
 pub fn main() {
-    let params = match parse_arguments() {
-        Ok((p, opts)) => {
-            if p.show_help {
-                print_usage(&p.program_name,&opts);
-                return;
-            }
-            p
-        },
-        Err(e) => {
-            panic!("Error: {}.
-Please refer to the help for correct usage.", e);
-        }
-    };
+    let params = Params::from_args();
 
     let mut files_list = Vec::<PathBuf>::new();
     for p in params.source_folders {
