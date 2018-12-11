@@ -1,15 +1,21 @@
 use std::fs;
 use std::path::PathBuf;
 
+use humanize_rs::bytes::{Bytes};
 use rand::Rng;
 use structopt::StructOpt;
+
+
+fn parse_size(src: &str) -> Result<Bytes<u64>, humanize_rs::ParseError> {
+    return src.parse::<Bytes<u64>>();
+}
 
 #[derive(Debug, StructOpt)]
 struct Params {
     #[structopt(short = "v", long="verbose")]
     verbose: bool,
-    #[structopt()]
-    size_limit: u64,
+    #[structopt(parse(try_from_str = "parse_size"))]
+    size_limit: Bytes<u64>,
     #[structopt(parse(from_os_str))]
     dest_folder: std::path::PathBuf,
     #[structopt()]
@@ -46,7 +52,7 @@ pub fn main() {
         println!("Files selected as potential candidates: {}", files_list.len());
     }
 
-    let mut remain = params.size_limit;
+    let mut remain: u64 = params.size_limit.size();
 
     let mut generator = rand::thread_rng();
 
